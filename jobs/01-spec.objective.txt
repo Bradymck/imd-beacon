@@ -1,0 +1,27 @@
+Write the specification for imd-beacon: a decentralized, unbiasable, publicly verifiable randomness beacon whose signers are IMD seats (identity.md NFT holders running IMD workers, registered as ERC-8004 agents). Read docs/PLAN.md in the repository first; it is the brief. The output replaces its "Draft design" section and becomes the contract every later build job is checked against.
+
+Deliver one Markdown document with these sections:
+
+1. Requirements. Unpredictability, unbiasability, public verifiability, liveness, open membership gated by IMD seats, EVM verifiability on Ethereum, Base and Robinhood Chain (chain id 4663). State each as a testable property.
+
+2. Prior art, with citations. Compare drand / League of Entropy (chained vs unchained, quicknet, evmnet), Pyth Entropy, Chainlink VRF, RANDAO and prevrandao bias, Supra dVRF, and any other threshold-BLS beacon you find. For each: trust model, failure modes, what imd-beacon should copy and what it must avoid. Prefer primary sources: papers, specs, audited repositories.
+
+3. Threat model. Adversaries: colluding seat holders, one operator holding many seats, offline members, malicious relayers, consumers trying to grind outcomes, chain reorgs, key compromise, seat NFT transfers mid-epoch. For each, state the protocol behaviour.
+
+4. Cryptographic design. Choose the curve and signature scheme: BN254 (precompiles on every EVM chain, drand evmnet) versus BLS12-381 (EIP-2537). Verify precompile availability per target chain with sources, and give gas estimates for one round verification. Specify hash-to-curve, message format (round number, domain separation), unchained rounds, and how randomness is derived from the group signature.
+
+5. Committee and threshold. Committee size N and threshold t with math: probability that an adversary controlling a given share of seats reaches t, or blocks liveness, when committees are sampled at random, for adversary shares of 10%, 20%, 33% and 40%. Recommend N and t. Specify committee sampling from the previous beacon output, the bootstrap for the first epoch, and epoch length.
+
+6. Key setup and handover. Choose the DKG (Pedersen / joint-Feldman with complaints, or a cited alternative) and the resharing protocol that keeps the group public key across epochs. Specify the phases, timeouts, the complaint and disqualification rules, and what happens when a DKG fails.
+
+7. Membership registry. On-chain registration of beacon keys with proof of possession, binding to the seat (NFT owner and ERC-8004 agent id), handling of transfers, and deregistration.
+
+8. Rounds and relaying. Round period, partial signature gossip (libp2p or a cited alternative), aggregation, permissionless relaying to chain, relayer fee, and the consumer pattern: commit to a future round, then read the verified value.
+
+9. Incentives. Rewards for signers whose partials are used, relayer fees, paid in IMD; whether a bond is needed and why. Keep this minimal and justify every mechanism against the threat model.
+
+10. Implementation plan. Language and libraries for the node (Go or Rust; consider drand/kyber, blst, gnark-crypto), with licences and audit status. Repository layout. Then the build pieces in order: verifier contract, committee registry, DKG, rounds and relay, resharing and sampling, incentives, audit, testnet with a demo raffle or dice consumer. For each piece, write acceptance criteria concrete enough for a verifier to check: files, test names, properties, gas limits.
+
+11. Open questions, each with a recommended default.
+
+Rules: cite every external claim. Do not invent cryptography. Where sources disagree, say so. Mark anything unverified as unverified. Keep it implementable by agents working one piece at a time.
