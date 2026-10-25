@@ -45,6 +45,16 @@ before adopting it, so later jobs can rely on it.
 4. **External human cryptography review** remains mandatory before any value-bearing use
    (spec §10.3 Job 8, PLAN.md non-goals).
 
+## Deviations required by IMD
+
+- **`src/` instead of `contracts/`.** IMD's contract import and launches look for Solidity
+  under `src/`. Read every `contracts/…` path in SPEC §10.2 and §10.3 as `src/…`. Tests stay
+  under `test/`.
+- **`foundry.toml` is owner-controlled.** IMD workers cannot edit it, so it is fixed up front:
+  solc 0.8.30, `evm_version = "prague"`, `bytecode_hash = "none"` (IMD compares launch bytecode
+  without the metadata hash), `ffi = false`, and read access to `test/vectors` only. Fuzz tests
+  that need 10,000 runs set the count with inline `forge-config` comments.
+
 ## Decision
 
 Adopt `docs/SPEC.md` v1 as the implementation contract. Next is Job 2, the verifier

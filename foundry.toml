@@ -1,12 +1,20 @@
-# Foundry project for imd-beacon. Layout follows docs/SPEC.md §10.2.
+# Foundry project for imd-beacon.
+# IMD convention: contracts live under src/ (SPEC §10.2 calls this directory contracts/).
+# IMD workers cannot edit this file, so it carries everything later jobs need.
 # Dependencies are vendored as ordinary files under lib/ (no submodules, offline builds; SPEC §10.1).
 [profile.default]
-src = "contracts"
+src = "src"
 test = "test"
 libs = ["lib"]
 out = "out"
 cache_path = "cache"
 solc_version = "0.8.30"
-evm_version = "prague"   # EIP-2537 BLS12-381 precompiles
+evm_version = "prague"          # EIP-2537 BLS12-381 precompiles; no later-fork opcodes (SPEC §10.3)
 optimizer = true
 optimizer_runs = 200
+bytecode_hash = "none"          # IMD launches compare bytecode without the metadata hash
+ffi = false                     # vectors are generated offline and committed, never via ffi
+fs_permissions = [{ access = "read", path = "./test/vectors" }]
+
+[profile.default.fuzz]
+runs = 256                      # SPEC-required 10,000-run fuzz tests set this per test with inline config
