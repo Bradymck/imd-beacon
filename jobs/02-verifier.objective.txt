@@ -3,10 +3,10 @@ Repository: https://github.com/Bradymck/imd-beacon (main branch). Read docs/SPEC
 Build Job 2: the on-chain verifier for imd-beacon rounds. Do not deploy anything.
 
 Files to produce:
-- contracts/BeaconVerifier.sol: immutable network descriptor and group key, installed once at a verified genesis and never changeable afterwards. It verifies one round's BLS12-381 group signature with the EIP-2537 precompiles and stores R(r) = SHA256(compressed G1 signature) as in §4.3.
-- contracts/interfaces/IBeacon.sol: the consumer-facing read interface for verified rounds (§8.2, §8.3).
+- src/BeaconVerifier.sol: immutable network descriptor and group key, installed once at a verified genesis and never changeable afterwards. It verifies one round's BLS12-381 group signature with the EIP-2537 precompiles and stores R(r) = SHA256(compressed G1 signature) as in §4.3.
+- src/interfaces/IBeacon.sol: already drafted from §8.2; freeze the final ABI and adjust it if needed (§8.2, §8.3).
 - Reviewed BLS, hash-to-curve and encoding libraries under lib/. Vendor them as ordinary files with licence notices. If you adapt randa-mu/bls-solidity, record the source revision and review every line you keep. Add strict canonical-encoding checks it lacks.
-- test/contracts/BeaconVerifier.t.sol, test/vectors/bls12.json, docs/verification-gas.md, foundry.toml (pinned solc and optimizer, EVM Prague or later), and a Makefile target that runs the whole suite offline.
+- test/contracts/BeaconVerifier.t.sol, test/vectors/bls12.json, docs/verification-gas.md, and a Makefile target that runs the whole suite offline.
 
 Cryptography, exactly as specified in §4.3:
 - Message M(r) = "IMD_BEACON_ROUND_V1" || networkId || U64BE(E(r)) || U64BE(r). Reject r = 0, overflow, epoch mismatch and the wrong network.
@@ -19,4 +19,4 @@ Required tests (names from §10.3): test_Rfc9380Vectors, test_IndependentBlsVect
 
 Gas budgets: testGas_VerifySingleRound at most 170,000 execution gas; testGas_SubmitFirstWrite at most 250,000 receipt gas, including intrinsic and calldata, without rewards. Record the measured numbers, storage writes and compiler profile in docs/verification-gas.md. If a budget cannot be met, report the measurement and the cause. Do not weaken a check to fit.
 
-Constraints: no admin setter for randomness, group key or config after genesis; early-round submission reverts; anyone may submit a valid round; a duplicate submission never pays twice. No network access needed to build or test. No private keys or real addresses in the tree. Leave rewards (Job 7), the registry (Job 3) and deployment (Job 9) out of scope. Update docs/SPEC.md only if you find an error in it, and explain the change in the pull request.
+Constraints: foundry.toml is fixed (workers cannot edit it): solc 0.8.30, EVM prague, bytecode_hash none, ffi off, read access to test/vectors only, so commit generated vectors as files and set the 10,000-run fuzz count with inline forge-config comments. Contracts go under src/ (IMD convention; SPEC §10.2 says contracts/). No admin setter for randomness, group key or config after genesis; early-round submission reverts; anyone may submit a valid round; a duplicate submission never pays twice. No network access needed to build or test. No private keys or real addresses in the tree. Leave rewards (Job 7), the registry (Job 3) and deployment (Job 9) out of scope. Update docs/SPEC.md only if you find an error in it, and explain the change in the pull request.
