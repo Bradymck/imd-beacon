@@ -1,0 +1,22 @@
+Repository: https://github.com/Bradymck/imd-beacon (main branch). Read docs/SPEC.md first, especially §4 (cryptographic design), §8.2 (chain API and permissionless relay) and §10.3 "Job 2". Also read docs/reviews/spec-v1-review.md. The spec is the contract; where this text and the spec differ, the spec wins. Report any conflict instead of guessing.
+
+Build Job 2: the on-chain verifier for imd-beacon rounds. Do not deploy anything.
+
+Files to produce:
+- contracts/BeaconVerifier.sol: immutable network descriptor and group key, installed once at a verified genesis and never changeable afterwards. It verifies one round's BLS12-381 group signature with the EIP-2537 precompiles and stores R(r) = SHA256(compressed G1 signature) as in §4.3.
+- contracts/interfaces/IBeacon.sol: the consumer-facing read interface for verified rounds (§8.2, §8.3).
+- Reviewed BLS, hash-to-curve and encoding libraries under lib/. Vendor them as ordinary files with licence notices. If you adapt randa-mu/bls-solidity, record the source revision and review every line you keep. Add strict canonical-encoding checks it lacks.
+- test/contracts/BeaconVerifier.t.sol, test/vectors/bls12.json, docs/verification-gas.md, foundry.toml (pinned solc and optimizer, EVM Prague or later), and a Makefile target that runs the whole suite offline.
+
+Cryptography, exactly as specified in §4.3:
+- Message M(r) = "IMD_BEACON_ROUND_V1" || networkId || U64BE(E(r)) || U64BE(r). Reject r = 0, overflow, epoch mismatch and the wrong network.
+- RFC 9380 BLS12381G1_XMD:SHA-256_SSWU_RO_ with the DST BLS_SIG_BLS12381G1_XMD:SHA-256_SSWU_RO_NUL_. Compute expand_message_xmd on-chain, then map two field elements with the EIP-2537 MAP_FP_TO_G1 precompile and add them. Never implement H(M) = hash(M)·G1.
+- Signatures in G1, group key in G2. Submit form is 96-byte uncompressed x || y with canonical 48-byte big-endian coordinates. Rebuild the standard 48-byte compressed encoding internally; that is the only input to the output hash.
+- Reject infinity, non-canonical field elements, wrong lengths, off-curve and non-subgroup points, wrong G2 coefficient order and extra bytes. Every precompile call must succeed with the exact return length and expected value; empty returndata from a missing precompile is a failure.
+
+Required tests (names from §10.3): test_Rfc9380Vectors, test_IndependentBlsVectors, test_CanonicalCompressionHash, test_RejectInfinity, test_RejectNonSubgroup, test_RejectNonCanonicalField, test_RejectMalformedLength, test_RejectWrongNetworkEpochRound, test_RejectMissingPrecompile, test_OutOfOrderRound, test_NoDuplicateFee, test_ZeroRandomnessAvailability (mock allowed only for this one), testFuzz_EncodingCannotChangeOutput (at least 10,000 runs) and testFuzz_ModifiedSignatureFails.
+- Vectors must come from RFC 9380 plus an independent implementation (blst or another reviewed BLS12-381 library) run offline. Do not check the Solidity code only against itself. Include one deterministic threshold fixture and at least 100 independent valid signatures, with generation provenance recorded in test/vectors. Test keys are test-only and labelled non-production.
+
+Gas budgets: testGas_VerifySingleRound at most 170,000 execution gas; testGas_SubmitFirstWrite at most 250,000 receipt gas, including intrinsic and calldata, without rewards. Record the measured numbers, storage writes and compiler profile in docs/verification-gas.md. If a budget cannot be met, report the measurement and the cause. Do not weaken a check to fit.
+
+Constraints: no admin setter for randomness, group key or config after genesis; early-round submission reverts; anyone may submit a valid round; a duplicate submission never pays twice. No network access needed to build or test. No private keys or real addresses in the tree. Leave rewards (Job 7), the registry (Job 3) and deployment (Job 9) out of scope. Update docs/SPEC.md only if you find an error in it, and explain the change in the pull request.
