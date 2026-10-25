@@ -20,7 +20,11 @@ piece at a time.
 Goal: drand-grade cryptography (threshold BLS, unbiasable while fewer than *t* signers
 collude), with membership open to anyone holding an IMD seat instead of a fixed league.
 
-## Draft design (to be replaced by the spec)
+## Draft design (superseded)
+
+**Superseded by [`SPEC.md`](SPEC.md) v1** (BLS12-381, N = 256 / t = 129, 30-second rounds,
+daily epochs, with a 64/33 no-value pilot profile). Review notes:
+[`reviews/spec-v1-review.md`](reviews/spec-v1-review.md). The draft below is kept for history.
 
 - **Members.** IMD seats: holders of the identity.md NFT
   (`0x0000ec93127baa929e58e97dd0095a2bfb38ec1d`, Ethereum) that are registered ERC-8004

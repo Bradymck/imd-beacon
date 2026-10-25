@@ -1,0 +1,176 @@
+{
+  "generated": "2026-10-25T19:52:17Z",
+  "chains": {
+    "ethereum": {
+      "chainId": 1,
+      "expectedChainId": 1,
+      "block": "0x190e09e",
+      "rpc": "https://ethereum-rpc.publicnode.com",
+      "probes": [
+        {
+          "precompile": "G1ADD",
+          "address": "0x000000000000000000000000000000000000000b",
+          "ok": true,
+          "outputBytes": 128,
+          "error": null
+        },
+        {
+          "precompile": "G1MSM",
+          "address": "0x000000000000000000000000000000000000000c",
+          "ok": true,
+          "outputBytes": 128,
+          "error": null
+        },
+        {
+          "precompile": "G2ADD",
+          "address": "0x000000000000000000000000000000000000000d",
+          "ok": true,
+          "outputBytes": 256,
+          "error": null
+        },
+        {
+          "precompile": "G2MSM",
+          "address": "0x000000000000000000000000000000000000000e",
+          "ok": true,
+          "outputBytes": 256,
+          "error": null
+        },
+        {
+          "precompile": "PAIRING_CHECK",
+          "address": "0x000000000000000000000000000000000000000f",
+          "ok": true,
+          "outputBytes": 32,
+          "error": null
+        },
+        {
+          "precompile": "MAP_FP_TO_G1",
+          "address": "0x0000000000000000000000000000000000000010",
+          "ok": true,
+          "outputBytes": 128,
+          "error": null
+        },
+        {
+          "precompile": "MAP_FP2_TO_G2",
+          "address": "0x0000000000000000000000000000000000000011",
+          "ok": true,
+          "outputBytes": 256,
+          "error": null
+        }
+      ]
+    },
+    "base": {
+      "chainId": 8453,
+      "expectedChainId": 8453,
+      "block": "0x32a0087",
+      "rpc": "https://mainnet.base.org",
+      "probes": [
+        {
+          "precompile": "G1ADD",
+          "address": "0x000000000000000000000000000000000000000b",
+          "ok": true,
+          "outputBytes": 128,
+          "error": null
+        },
+        {
+          "precompile": "G1MSM",
+          "address": "0x000000000000000000000000000000000000000c",
+          "ok": true,
+          "outputBytes": 128,
+          "error": null
+        },
+        {
+          "precompile": "G2ADD",
+          "address": "0x000000000000000000000000000000000000000d",
+          "ok": true,
+          "outputBytes": 256,
+          "error": null
+        },
+        {
+          "precompile": "G2MSM",
+          "address": "0x000000000000000000000000000000000000000e",
+          "ok": true,
+          "outputBytes": 256,
+          "error": null
+        },
+        {
+          "precompile": "PAIRING_CHECK",
+          "address": "0x000000000000000000000000000000000000000f",
+          "ok": true,
+          "outputBytes": 32,
+          "error": null
+        },
+        {
+          "precompile": "MAP_FP_TO_G1",
+          "address": "0x0000000000000000000000000000000000000010",
+          "ok": true,
+          "outputBytes": 128,
+          "error": null
+        },
+        {
+          "precompile": "MAP_FP2_TO_G2",
+          "address": "0x0000000000000000000000000000000000000011",
+          "ok": true,
+          "outputBytes": 256,
+          "error": null
+        }
+      ]
+    },
+    "robinhood": {
+      "chainId": 4663,
+      "expectedChainId": 4663,
+      "block": "0x5d4f53d",
+      "rpc": "https://rpc.mainnet.chain.robinhood.com",
+      "probes": [
+        {
+          "precompile": "G1ADD",
+          "address": "0x000000000000000000000000000000000000000b",
+          "ok": true,
+          "outputBytes": 128,
+          "error": null
+        },
+        {
+          "precompile": "G1MSM",
+          "address": "0x000000000000000000000000000000000000000c",
+          "ok": true,
+          "outputBytes": 128,
+          "error": null
+        },
+        {
+          "precompile": "G2ADD",
+          "address": "0x000000000000000000000000000000000000000d",
+          "ok": true,
+          "outputBytes": 256,
+          "error": null
+        },
+        {
+          "precompile": "G2MSM",
+          "address": "0x000000000000000000000000000000000000000e",
+          "ok": true,
+          "outputBytes": 256,
+          "error": null
+        },
+        {
+          "precompile": "PAIRING_CHECK",
+          "address": "0x000000000000000000000000000000000000000f",
+          "ok": true,
+          "outputBytes": 32,
+          "error": null
+        },
+        {
+          "precompile": "MAP_FP_TO_G1",
+          "address": "0x0000000000000000000000000000000000000010",
+          "ok": true,
+          "outputBytes": 128,
+          "error": null
+        },
+        {
+          "precompile": "MAP_FP2_TO_G2",
+          "address": "0x0000000000000000000000000000000000000011",
+          "ok": true,
+          "outputBytes": 256,
+          "error": null
+        }
+      ]
+    }
+  }
+}
