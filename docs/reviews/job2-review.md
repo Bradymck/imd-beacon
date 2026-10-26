@@ -94,6 +94,10 @@ Tests went from 51 to 55, with none deleted. New low items:
 Before merging: `make test` (55 passing), `FUZZ_SEED=0x4c3111c9d3cbce64ad39b508ac8cae717b41638c104f0bc6799e8fe01c04de0a make test`,
 and confirm the fuzz tests report `runs: 10000` / `runs: 2000`.
 
+**Verified locally, 2026-10-26** (forge 1.8.5, commit `1686de6`): `make test` gave 5 suites,
+**55 passed, 0 failed, 0 skipped** with seed `0x21a7…`, and again with the original seed `0x4c31…`.
+`testFuzz_EncodingCannotChangeOutput` ran 10,000 runs and `testFuzz_ModifiedSignatureFails` ran 2,000, both passing.
+
 ## Notes for later jobs
 
 - **Job 7 (rewards):** the escrow must pay only when `submit` returns `true`. Note that the
