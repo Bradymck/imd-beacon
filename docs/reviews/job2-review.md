@@ -67,10 +67,37 @@ RFC text (50 of 50 hex values). An adversarial review of the test suite found th
 7. **Gap:** the SPEC §10.3 deployment smoke scripts (positive, negative, malformed and subgroup
    vectors on all 7 precompiles) do not exist yet. They can move to Job 9.
 
+## Audit round 3 (2026-10-26): fixes from IMD job f7fdbbf9
+
+The fixes came back as continuation job
+[`f7fdbbf9-e5c7-4150-9e7d-75f22698d330`](https://explorer.imd.fun/jobs/f7fdbbf9-e5c7-4150-9e7d-75f22698d330):
+one accepted node (seat #1357), bundle sha256 `6e959af7…`, commit `1ef100f`. It touched no
+protected file (`foundry.toml`, `src/bls/`, `docs/SPEC.md`). A read-only re-review of the diff
+found:
+
+| Finding | Verdict |
+|---|---|
+| 1 Duplicate path accepts invalid points | **Resolved.** `submit` runs the full `_verify` on duplicates. `test_DuplicateRejectsInvalidPoint` (off-curve, non-subgroup and y-flip with the compressed form asserted unchanged → exact `PrecompileFailure(0x0f)`) fails on the old code. |
+| 2 Encoding fuzz | **Resolved.** Every run is adversarial: 9 classes with exact selectors, each against `verify`, a first `submit` and a duplicate `submit`. 10,000 runs. |
+| 3 Modified-signature fuzz | **Partial (minor).** No-op mask removed, sig+G1 and 2·sig added, publication before each mode. Gap: mode 1 (another round) hits the first-write path, so a valid signature for a different round is never tried as a duplicate. `job2-fixes.md`, `verification-notes.md:18` and `verification-gas.md:94` overstate the coverage. |
+| 4 Invariant handler | **Resolved.** Revert data pinned in contract order, y-flip mutation added. |
+| 5 Bare `expectRevert()` | **Resolved.** 10 → 0. |
+| 6 Warm-word gas | **Resolved, and the original finding was partly wrong.** The old test actually double-counted intrinsic and calldata gas. Now isolated (`vm.isIsolateMode`, `vm.lastFrameGas`), with fresh − warm = 17,100 asserted. Receipts: first write 202,060; warm 184,960; epoch gate 207,593; duplicate 158,366. All within budget. |
+| 7 Deployment smoke scripts | Deferred to Job 9 (unchanged). |
+
+Tests went from 51 to 55, with none deleted. New low items:
+- `_expectedEncodingError` (`BeaconVerifier.t.sol:242–253`) uses the library's own
+  `isCanonicalFp` as its oracle. That is mitigated, because the boundaries are tested
+  separately.
+- The pinned fuzz seed in `Makefile` changed from `0x4c31…` to `0x21a7…`. Run with both.
+
+Before merging: `make test` (55 passing), `FUZZ_SEED=0x4c3111c9d3cbce64ad39b508ac8cae717b41638c104f0bc6799e8fe01c04de0a make test`,
+and confirm the fuzz tests report `runs: 10000` / `runs: 2000`.
+
 ## Notes for later jobs
 
 - **Job 7 (rewards):** the escrow must pay only when `submit` returns `true`. Note that the
-  duplicate path is currently wrong (audit round 2, finding 1). An earlier version of this
+  duplicate path was wrong (audit round 2, finding 1; fixed in round 3). An earlier version of this
   review called it "safe because nothing is paid"; that underrated the spec violation.
 - **Job 3** must implement `IEpochAuthority` for the registry and each `EpochMirror`.
 - **Job 9:** a real launch needs the frozen genesis descriptor and the DKG group key. Don't
