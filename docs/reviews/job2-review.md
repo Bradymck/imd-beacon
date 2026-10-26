@@ -29,8 +29,8 @@ both matching the hashes IMD published. They apply on top of `main@71252e8`.
 
 ## Not yet done
 
-- **The test suite was not run by this reviewer.** IMD's verifier ran the Foundry profile
-  ("all checks passed"). Run `make test` locally before relying on it.
+- ~~Run the test suite locally.~~ **Done 2026-10-25:** `make test` (forge 1.8.5) ran 4 suites,
+  **51 tests passed, 0 failed, 0 skipped**. That agrees with IMD's verifier ("all checks passed").
 - Line-by-line review of `src/bls/BLS12381.sol` and `src/bls/HashToCurveG1.sol` (encoding
   checks, subgroup handling, gas caps) is still owed. It belongs in the Job 8 external audit
   regardless.
