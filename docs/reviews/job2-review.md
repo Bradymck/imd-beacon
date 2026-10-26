@@ -35,11 +35,43 @@ both matching the hashes IMD published. They apply on top of `main@71252e8`.
   checks, subgroup handling, gas caps) is still owed. It belongs in the Job 8 external audit
   regardless.
 
+## Audit round 2 (2026-10-26): blocking findings
+
+The crypto core was reviewed line by line. The `p`, `(p-1)/2`, G1 generator and negated-G2
+constants were re-derived. The RFC 9380 vectors in `test/vectors/bls12.json` all match the
+RFC text (50 of 50 hex values). An adversarial review of the test suite found the following.
+**Do not merge until 1–4 are fixed with tests that fail on the current code first.**
+
+1. **Medium, verifier bug: a duplicate `submit` accepts invalid points.** `src/BeaconVerifier.sol`
+   lines 130–136: once a round is available, the duplicate path only parses, compresses and
+   hashes. It never runs the pairing, so an off-curve or non-subgroup point with the same x and
+   sign bit returns `false` instead of reverting. That breaks SPEC "invalid submissions revert".
+   The swarm's own notes (`test/verification-notes.md` lines 68–82) record this finding, but
+   the referenced `.imd-findings.json` and `test/scratch/DuplicateOffCurveProof.t.sol` were not
+   delivered, and the invariant handler deliberately avoids the case. Fix: run the full
+   `_verify` on duplicates, then compare with the stored value.
+2. **Medium, test:** `testFuzz_EncodingCannotChangeOutput` (`BeaconVerifier.t.sol:482–507`).
+   25% of runs are unmodified, one mode uses a bare `expectRevert`, and random flips almost
+   never produce x+p, y+p, p−y or flag-bit encodings. Target those classes with exact
+   selectors, against `verify`, a first `submit` and a duplicate `submit`.
+3. **Medium, test:** `testFuzz_ModifiedSignatureFails` only tests `verify`. Modes 0 and 2 use
+   bare reverts, and the `:529` mask is a no-op. Pin `PrecompileFailure(0x0f)`, add sig+G1 and
+   2·sig, and run every mode against `submit` after the round is published. That would have
+   caught #1.
+4. **Medium, test:** the invariant handler's malformed path (`BeaconVerifierInvariant.t.sol:142–143`)
+   accepts any revert. Assert the expected revert data per state, and add a y-flip mutation.
+5. **Low:** bare `expectRevert` at `BeaconVerifier.t.sol:355,403` and
+   `BeaconVerifierAdversarial.t.sol:119,168,174,190,400`. Pin the selectors.
+6. **Low:** `testGas_SubmitFirstWriteWarmWord` warms the word slot in the same transaction, so
+   it undercounts by about 2,100 gas.
+7. **Gap:** the SPEC §10.3 deployment smoke scripts (positive, negative, malformed and subgroup
+   vectors on all 7 precompiles) do not exist yet. They can move to Job 9.
+
 ## Notes for later jobs
 
-- **Job 7 (rewards):** the duplicate path in `submit` returns `false` without re-running the
-  pairing. That is safe because nothing is paid there, and the README says the escrow pays
-  only when `submit` returns `true`. Keep it that way.
+- **Job 7 (rewards):** the escrow must pay only when `submit` returns `true`. Note that the
+  duplicate path is currently wrong (audit round 2, finding 1). An earlier version of this
+  review called it "safe because nothing is paid"; that underrated the spec violation.
 - **Job 3** must implement `IEpochAuthority` for the registry and each `EpochMirror`.
 - **Job 9:** a real launch needs the frozen genesis descriptor and the DKG group key. Don't
   open a contracts *launch* again until those exist.
